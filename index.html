@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>✈️ AI Family Travel Coach</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,#e0f2fe,#fef3c7,#fce7f3);min-height:100vh;display:flex;flex-direction:column}
+.header{background:linear-gradient(90deg,#0ea5e9,#0369a1);padding:14px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 12px rgba(0,0,0,0.15);flex-shrink:0}
+.header-icon{font-size:1.8rem}
+.header h1{color:white;font-size:1rem;font-weight:700}
+.header p{color:rgba(255,255,255,0.78);font-size:0.7rem;margin-top:2px}
+.badge{margin-left:auto;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:white;font-size:0.62rem;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.5px}
+.reset-btn{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;font-size:0.72rem;padding:6px 12px;border-radius:20px;cursor:pointer;margin-left:8px}
+#setupScreen{flex:1;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:white;border-radius:24px;padding:36px 28px;max-width:420px;width:100%;box-shadow:0 8px 40px rgba(14,165,233,0.15);text-align:center}
+.card-emoji{font-size:3.5rem;margin-bottom:10px}
+.card h2{font-size:1.35rem;font-weight:800;color:#0f172a;margin-bottom:8px}
+.card p{color:#64748b;font-size:0.84rem;line-height:1.75;margin-bottom:24px}
+.card a{color:#0ea5e9;text-decoration:none;font-weight:500}
+.input-wrap{position:relative;margin-bottom:8px}
+.input-wrap input{width:100%;padding:14px 44px 14px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:0.88rem;font-family:monospace;outline:none;background:#f8fafc;color:#1e293b;transition:border-color .2s}
+.input-wrap input:focus{border-color:#0ea5e9;background:white}
+.toggle-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1rem}
+.error-msg{color:#ef4444;font-size:0.78rem;text-align:left;margin-bottom:10px;display:none}
+.start-btn{width:100%;padding:16px;background:linear-gradient(90deg,#0ea5e9,#0284c7);color:white;border:none;border-radius:14px;font-size:1.05rem;font-weight:700;cursor:pointer;letter-spacing:.2px}
+.start-btn:hover{opacity:.9}
+.privacy{margin-top:16px;background:#f8fafc;border-radius:8px;padding:10px 13px;font-size:0.72rem;color:#94a3b8;text-align:left;line-height:1.6}
+#chatScreen{flex:1;display:flex;flex-direction:column;overflow:hidden;display:none}
+.messages{flex:1;overflow-y:auto;padding:16px 14px 8px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+.msg{display:flex;gap:8px;align-items:flex-start}
+.msg.user{flex-direction:row-reverse}
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.avatar.coach{background:linear-gradient(135deg,#0ea5e9,#0369a1)}
+.avatar.user{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.bubble{padding:12px 16px;border-radius:16px;font-size:.875rem;line-height:1.7;max-width:80%;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.msg.coach .bubble{background:white;color:#1e293b;border-top-left-radius:4px}
+.msg.user .bubble{background:linear-gradient(135deg,#0ea5e9,#0284c7);color:white;border-top-right-radius:4px}
+.bubble strong{font-weight:700}
+.typing-dots{display:flex;gap:5px;align-items:center;padding:4px 2px}
+.typing-dots span{width:8px;height:8px;border-radius:50%;background:#0ea5e9;opacity:.65;animation:bounce 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.chips{padding:4px 14px 10px;display:flex;gap:7px;flex-wrap:wrap}
+.chip{padding:7px 13px;background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;font-size:.76rem;font-weight:500;cursor:pointer;white-space:nowrap}
+.chip:hover{background:#bae6fd}
+.input-bar{padding:10px 14px;background:white;border-top:1px solid #e2e8f0;display:flex;gap:8px;align-items:flex-end}
+.input-bar textarea{flex:1;border:2px solid #e2e8f0;border-radius:12px;padding:11px 14px;font-family:inherit;font-size:.875rem;resize:none;outline:none;background:#f8fafc;line-height:1.5;max-height:120px}
+.input-bar textarea:focus{border-color:#0ea5e9;background:white}
+.send-btn{width:44px;height:44px;background:linear-gradient(135deg,#0ea5e9,#0284c7);border:none;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.send-btn:disabled{background:#cbd5e1;cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-icon">✈️</div>
+  <div>
+    <h1>AI Family Travel Coach</h1>
+    <p>Calm, realistic planning for parents with young kids</p>
+  </div>
+  <span class="badge">PREMIUM</span>
+  <button class="reset-btn" id="resetBtn" style="display:none" onclick="resetApp()">↺ Reset</button>
+</div>
+<div id="setupScreen">
+  <div class="card">
+    <div class="card-emoji">🗺️</div>
+    <h2>Welcome, Travel-Ready Parent!</h2>
+    <p>
+      Enter your Anthropic API key to start your personalised coaching session.<br/>
+      Your key is <strong>never stored</strong> — it lives only in this browser tab.<br/><br/>
+      Get a key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com →</a>
+    </p>
+    <div class="input-wrap">
+      <input type="password" id="apiKeyInput" placeholder="Paste your key here: sk-ant-..." onkeydown="if(event.key==='Enter')startCoach()"/>
+      <button class="toggle-btn" onclick="toggleKey()">👁️</button>
+    </div>
+    <div class="error-msg" id="errorMsg"></div>
+    <button class="start-btn" onclick="startCoach()">🚀 Start My Coaching Session</button>
+    <div class="privacy">🔒 <strong>Privacy first:</strong> Your key is sent directly to Anthropic from your browser. Nothing is saved or shared elsewhere.</div>
+  </div>
+</div>
+<div id="chatScreen">
+  <div class="messages" id="messages"></div>
+  <div class="chips" id="chips">
+    <button class="chip" onclick="sendChip('I already know where I want to go.')">🗺️ I know my destination</button>
+    <button class="chip" onclick="sendChip('I have some ideas but need help choosing a destination.')">🤔 Help me choose</button>
+    <button class="chip" onclick="sendChip('I have no idea where to go — help me choose from scratch!')">🌍 No idea, help!</button>
+    <button class="chip" onclick="sendChip('What is your best advice for flying with toddlers?')">✈️ Flying with toddlers</button>
+    <button class="chip" onclick="sendChip('Can you give me a packing checklist for travelling with young kids?')">🧳 Packing list</button>
+  </div>
+  <div class="input-bar">
+    <textarea id="userInput" placeholder="Type here and press Enter to send…" rows="1"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+      oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+<script>
+var apiKey = '';
+var chatHistory = [];
+var isLoading = false;
+var SYSTEM = 'You are an Expert Family Travel Coach helping busy parents plan travel with babies, toddlers, and young children. Your tone is calm, warm, knowledgeable — like a supportive parent-coach.\n\nFIRST RESPONSE: Always start with:\n✈️ Quick Travel Snapshot\n• One encouraging observation\n• One smart expert tip\n• One gentle reminder about a common travel mistake parents make\n\nThen ask: where they are in the decision process, travel origin, number/ages of children, trip length.\n\nENERGY-BASED PLANNING:\n🔴 Low-Energy: Babies/toddlers, tired parents → one activity/day, short distances, long rest\n🟡 Balanced: Adaptable kids → one main + one optional activity, recovery time built in\n🟢 High-Energy: Active children → more exploration, multiple options\n\nALWAYS include: slow mornings, post-lunch quiet time, easy dinners, gentle evenings.\n\nCONVERSATION ROUNDS:\n1. Trip basics (origin, adults, child ages, trip length)\n2. Destination coaching (suggest 3-5 with effort rating + £/££/£££)\n3. Transport strategy (trade-offs: time vs stress, cost vs convenience)\n4. Budget estimates (ranges not exact prices, money-saving tips)\n5. Family priorities (what matters most, what to avoid)\n\nFINAL PLAN FORMAT:\n1️⃣ Why This Trip Fits Your Family\n2️⃣ Smart Travel Strategy\n3️⃣ Kid-Friendly Itinerary (one main activity/day, rest built in)\n4️⃣ Financial Snapshot\n5️⃣ Packing Strategy\n6️⃣ Backup Plans\n7️⃣ Parent Energy Saver Tips\n\nEnd final plans with: "Would you like me to also create: ✈️ Flight survival strategy • 🚗 Road trip plan • 🍽️ Eating out game-plan • 📋 Packing checklist • 😴 Low-energy parent version?"\n\nRULES: Suggest real destinations only. Give ranges not exact prices. State assumptions clearly. Never invent prices or deals.';
+function toggleKey(){var i=document.getElementById('apiKeyInput');i.type=i.type==='password'?'text':'password';}
+function showError(msg){var el=document.getElementById('errorMsg');el.textContent=msg;el.style.display='block';}
+function startCoach(){
+  var key=document.getElementById('apiKeyInput').value.trim();
+  if(!key.startsWith('sk-ant-')){showError('❌ Key must start with sk-ant- — please check you copied the full key');return;}
+  apiKey=key;chatHistory=[];
+  document.getElementById('setupScreen').style.display='none';
+  document.getElementById('chatScreen').style.display='flex';
+  document.getElementById('chatScreen').style.flexDirection='column';
+  document.getElementById('resetBtn').style.display='inline-block';
+  callAPI([{role:'user',content:'Hello! Please introduce yourself and give me the Quick Travel Snapshot to get started.'}],true);
+}
+function resetApp(){
+  if(!confirm('Start a new session? This will clear the current conversation.'))return;
+  apiKey='';chatHistory=[];
+  document.getElementById('messages').innerHTML='';
+  document.getElementById('apiKeyInput').value='';
+  document.getElementById('chatScreen').style.display='none';
+  document.getElementById('setupScreen').style.display='flex';
+  document.getElementById('resetBtn').style.display='none';
+  document.getElementById('chips').style.display='flex';
+}
+function sendChip(text){document.getElementById('userInput').value=text;sendMessage();}
+function sendMessage(){
+  var input=document.getElementById('userInput');
+  var text=input.value.trim();
+  if(!text||isLoading)return;
+  input.value='';input.style.height='auto';
+  addBubble('user',text);
+  chatHistory.push({role:'user',content:text});
+  document.getElementById('chips').style.display='none';
+  callAPI(chatHistory,false);
+}
+function callAPI(msgs,isFirst){
+  isLoading=true;document.getElementById('sendBtn').disabled=true;showTyping();
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:SYSTEM,messages:msgs})
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    hideTyping();
+    if(data.error){addBubble('coach','⚠️ API Error: '+data.error.message);}
+    else{var reply=data.content[0].text;if(isFirst){chatHistory=[];}chatHistory.push({role:'assistant',content:reply});addBubble('coach',reply);}
+    isLoading=false;document.getElementById('sendBtn').disabled=false;
+  })
+  .catch(function(e){
+    hideTyping();
+    addBubble('coach','⚠️ Connection error: '+e.message+'\n\nPlease check your API key and internet connection.');
+    isLoading=false;document.getElementById('sendBtn').disabled=false;
+  });
+}
+function addBubble(role,text){
+  var container=document.getElementById('messages');
+  var msg=document.createElement('div');msg.className='msg '+(role==='coach'?'coach':'user');
+  var av=document.createElement('div');av.className='avatar '+(role==='coach'?'coach':'user');av.textContent=role==='coach'?'✈️':'👤';
+  var bubble=document.createElement('div');bubble.className='bubble';bubble.innerHTML=fmt(text);
+  msg.appendChild(av);msg.appendChild(bubble);container.appendChild(msg);
+  container.scrollTop=container.scrollHeight;
+}
+function showTyping(){
+  var container=document.getElementById('messages');
+  var el=document.createElement('div');el.className='msg coach';el.id='typingEl';
+  el.innerHTML='<div class="avatar coach">✈️</div><div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+  container.appendChild(el);container.scrollTop=container.scrollHeight;
+}
+function hideTyping(){var el=document.getElementById('typingEl');if(el)el.remove();}
+function fmt(t){
+  return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/\n{2,}/g,'<br/><br/>').replace(/\n/g,'<br/>');
+}
+</script>
+</body>
+</html>
